@@ -8,10 +8,8 @@ on:
 
 jobs:
   smoke-tests:
-    name: Smoke Tests (core dependencies)
+    name: Smoke Tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
 
     steps:
       - name: Checkout
@@ -23,16 +21,15 @@ jobs:
           enable-cache: true
           python-version: "3.14"
 
-      - name: Install dependencies
-        run: uv sync --extra core --group test
+      - name: Sync dependencies
+        run: uv sync --all-extras --group dev
 
       - name: Run smoke tests
         run: uv run pytest tests/smoke_tests/ -v -m "not integration" --tb=short
 
       - name: Run ruff check
-        run: uv run ruff check tests/smoke_tests/ --fix
+        run: uv run ruff check . --fix
 
-  # Weekly integration tests (requires network)
   integration-tests:
     name: Integration Tests (network required)
     runs-on: ubuntu-latest
@@ -48,8 +45,8 @@ jobs:
           enable-cache: true
           python-version: "3.14"
 
-      - name: Install dependencies
-        run: uv sync --extra core --group test
+      - name: Sync dependencies
+        run: uv sync --all-extras --group dev
 
-      - name: Run all smoke tests (including network tests)
+      - name: Run all smoke tests
         run: uv run pytest tests/smoke_tests/ -v --tb=short
